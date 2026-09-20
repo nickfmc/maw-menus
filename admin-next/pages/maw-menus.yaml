@@ -1,0 +1,6 @@
+id: maw-menus
+plugin: maw-menus
+title: Menus
+# `component` is mandatory: any other page_type makes Admin2 render "No content available".
+page_type: component
+has_custom_component: true

@@ -1,0 +1,12 @@
+# Menus are site structure rather than page content, so they get their own permission.
+# For one minor version the controller also accepts api.pages.write, so existing accounts
+# don't lose access the day the plugin is installed. See classes/Controllers/MenusController.php.
+actions:
+  api.menus:
+    type: access
+    label: Menus API
+    actions:
+      read:
+        label: Read Menus
+      write:
+        label: Create/Update/Delete Menus

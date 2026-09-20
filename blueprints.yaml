@@ -1,0 +1,55 @@
+name: MAW Menus
+slug: maw-menus
+type: plugin
+# Bump this on every release that changes API routes: the API plugin caches its route table and only
+# rebuilds it when a plugin's blueprints.yaml changes. Without a bump, a new endpoint returns 404.
+version: 0.1.0
+homepage: https://github.com/nickfmc/grav-plugin-maw-menus
+bugs: https://github.com/nickfmc/grav-plugin-maw-menus/issues
+description: Drag-and-drop menu builder for Admin2. Build named menus from pages and custom links, with nesting, icons and style flags. Saves plain YAML.
+icon: bars
+author:
+  name: Mountain Air Web
+  email: nick@mountainairweb.com
+  url: https://mountainairweb.com
+keywords: menu, navigation, nav, menu builder, admin2, drag and drop
+license: MIT
+compatibility:
+  grav: ['2.1']
+dependencies:
+  - { name: grav, version: '>=2.1.0' }
+  - { name: api, version: '>=1.0.30' }
+  - { name: admin2, version: '>=2.1.0' }
+
+form:
+  validation: loose
+  fields:
+    enabled:
+      type: toggle
+      label: PLUGIN_ADMIN.PLUGIN_STATUS
+      highlight: 1
+      default: 1
+      options: { 1: PLUGIN_ADMIN.ENABLED, 0: PLUGIN_ADMIN.DISABLED }
+      validate: { type: bool }
+    max_depth:
+      type: number
+      label: Levels rendered
+      help: How deep a menu may nest when rendered. The maw-starter header supports 2.
+      default: 3
+      validate: { type: int, min: 1, max: 5 }
+    external_new_tab:
+      type: toggle
+      label: Open external links in a new tab
+      help: Applies when an item has no explicit target of its own.
+      highlight: 1
+      default: 1
+      options: { 1: PLUGIN_ADMIN.ENABLED, 0: PLUGIN_ADMIN.DISABLED }
+      validate: { type: bool }
+    rewrite_routes:
+      type: toggle
+      label: Follow pages when they move
+      help: Rewrites menu links after a page is moved or renamed in the admin.
+      highlight: 1
+      default: 1
+      options: { 1: PLUGIN_ADMIN.ENABLED, 0: PLUGIN_ADMIN.DISABLED }
+      validate: { type: bool }
