@@ -84,6 +84,9 @@ class MenusController extends AbstractApiController
         }
 
         if (!empty($request->getQueryParams()['resolve'])) {
+            // The resolver looks pages up by route, and an API request has no page tree until asked —
+            // without this every page item would come back flagged broken.
+            $this->pageTree();
             // include_broken so the admin can show which items point at a page that no longer exists.
             $menu['resolved'] = (new MenuResolver($this->grav))->nodes($id, ['include_broken' => true]);
         }

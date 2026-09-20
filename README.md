@@ -6,8 +6,8 @@ custom links, nest them, and render them from a theme with one Twig call.
 Grav has no menu concept: navigation comes from the page tree, so ordering means renaming folders and a
 hidden page can never appear in the nav. This plugin adds menus as data, without taking the page tree away.
 
-> **Status: in development.** Storage, API and rendering work end to end. The admin screen is still a probe —
-> menus are built through the API for now.
+> **Status: in development.** Usable end to end — build menus on the Admin2 **Menus** screen and a theme
+> renders them. Mega-menu panels are planned; the data model already accepts them.
 
 ## Features
 
@@ -32,6 +32,16 @@ hidden page can never appear in the nav. This plugin adds menus as data, without
 git submodule add https://github.com/nickfmc/grav-plugin-maw-menus.git user/plugins/maw-menus
 php bin/grav clearcache
 ```
+
+## Using it
+
+**Menus** in the Admin2 sidebar. Drag a row by its grip to reorder it, and drag sideways to nest it —
+the drop indicator is drawn at the depth you would land at. Every move also has a button and an
+`Alt`+arrow shortcut, and `Ctrl/Cmd+S` saves.
+
+Add items from the panel on the left: **Pages** (searchable, including pages hidden from the automatic
+nav), **Link** for a custom URL or a grouping heading, or **Build** to seed the whole menu from the page
+tree the way the theme's automatic navigation would.
 
 ## What a theme provides
 
@@ -116,7 +126,16 @@ Delete the menu file, or disable the plugin, and the site goes back to the theme
 
 ```bash
 php user/plugins/maw-menus/tests/php/run.php    # PHP tests, no dependencies
+npm test                                        # tree and drag-projection logic
+npm run build                                   # rebuild the admin bundles after editing src/
 ```
+
+The compiled bundles are committed, so a site never needs Node. `src/lib/tree.js` and `src/lib/dnd.js`
+hold every structural decision and contain no Svelte, which is what keeps them testable with
+`node --test` and no dependencies — keep it that way.
+
+The same app also builds as an Admin2 custom field (`type: menus`), which opens it full screen. That is
+insurance for an Admin2 that cannot render a plugin's own page; the sidebar screen is the normal route.
 
 **After adding or changing an API route, bump `version` in `blueprints.yaml`.** The API plugin caches its
 route table and only rebuilds it when a plugin blueprint changes; otherwise the new endpoint 404s (or keeps

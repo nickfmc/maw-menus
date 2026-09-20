@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.3.0 (2026-09-20)
+The menu builder itself: a drag-and-drop nesting tree on the Admin2 **Menus** screen.
+
+- **Drag to nest.** The tree flattens while dragging, so an item can never be dropped inside itself. Depth follows how far the pointer travels sideways, and the drop indicator is drawn at the depth you would land at — without that nobody can tell what is about to happen.
+- **Refuses impossible drops, and says why.** You cannot skip a level or orphan the row below; past the menu's level limit the indicator turns amber and reads "This menu renders 2 levels".
+- **Keyboard equivalent for every move.** `Alt`+arrows, or the per-row buttons, run the same operations as a drag. `Ctrl/Cmd+S` saves.
+- **Add items** from a searchable page list (hidden and draft pages included — something the page tree could never do), a custom URL, or a plain heading that groups the items under it.
+- **Build from the page tree** in one click, using the same rules the theme's automatic navigation uses.
+- **Inspector** for label, page/URL, icon, description, new tab, nofollow and the button/highlight style flags.
+- Items pointing at a missing or unpublished page are badged **Broken** — they are kept in the file so they can be re-pointed, and never rendered to a visitor.
+- Unsaved changes arm Admin2's own "leave page?" guard, and a concurrent save is reported rather than silently overwritten.
+- 31 JS tests cover the tree and drop-projection logic, which is deliberately plain JavaScript with no Svelte in it.
+
 ## v0.2.0 (2026-09-20)
 First working end to end: menus are stored, served and rendered. The admin screen is still the phase 0 probe.
 

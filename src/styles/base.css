@@ -1,0 +1,71 @@
+/* Shared styles for both shadow roots (the Admin2 page, and the full-screen host the field opens).
+   Colors follow Admin2's theme variables so the app matches whatever theme the admin is in. */
+:host, .mm-root {
+  --mm-bg: var(--background, #fff);
+  --mm-fg: var(--foreground, #09090b);
+  --mm-card: var(--card, #fff);
+  --mm-muted: var(--muted, #f4f4f5);
+  --mm-muted-fg: var(--muted-foreground, #71717a);
+  --mm-border: var(--border, #e4e4e7);
+  --mm-input: var(--input, #e4e4e7);
+  --mm-primary: var(--primary, #2463eb);
+  --mm-primary-fg: var(--primary-foreground, #fff);
+  --mm-accent: var(--accent, #f4f4f5);
+  --mm-danger: #dc2626;
+  --mm-warn: #b45309;
+  --mm-radius: var(--radius, 0.5rem);
+  --mm-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* One nesting level. MUST match INDENT in src/lib/dnd.js, which converts pointer travel to depth. */
+  --mm-indent: 24px;
+  font-family: var(--mm-font);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--mm-fg);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+button { font: inherit; color: inherit; cursor: pointer; }
+input, select, textarea { font: inherit; color: inherit; }
+
+.mm-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  height: 32px; padding: 0 12px; border-radius: calc(var(--mm-radius) - 2px);
+  border: 1px solid var(--mm-border); background: var(--mm-card); font-weight: 550; white-space: nowrap;
+  transition: background 120ms, border-color 120ms, color 120ms;
+}
+.mm-btn:hover { background: var(--mm-accent); }
+.mm-btn:disabled { opacity: 0.45; cursor: default; }
+.mm-btn.primary { background: var(--mm-primary); border-color: var(--mm-primary); color: var(--mm-primary-fg); }
+.mm-btn.primary:hover { filter: brightness(1.08); }
+.mm-btn.ghost { border-color: transparent; background: transparent; }
+.mm-btn.ghost:hover { background: var(--mm-accent); }
+.mm-btn.icon { width: 32px; padding: 0; }
+.mm-btn.sm { height: 26px; padding: 0 8px; font-size: 12px; }
+.mm-btn.icon.sm { width: 26px; padding: 0; }
+.mm-btn.danger:hover { color: var(--mm-danger); border-color: var(--mm-danger); }
+
+.mm-input {
+  width: 100%; min-height: 32px; padding: 6px 9px; border-radius: calc(var(--mm-radius) - 2px);
+  border: 1px solid var(--mm-input); background: var(--mm-bg); outline: none;
+}
+.mm-input:focus { border-color: var(--mm-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--mm-primary) 22%, transparent); }
+
+.mm-label { display: block; font-weight: 600; font-size: 12px; margin-bottom: 5px; }
+.mm-help { color: var(--mm-muted-fg); font-size: 11.5px; margin-top: 4px; }
+.mm-scroll { overflow-y: auto; scrollbar-width: thin; }
+
+.mm-banner {
+  padding: 8px 12px; border-radius: calc(var(--mm-radius) - 2px); border: 1px solid var(--mm-border);
+  background: var(--mm-muted); margin-bottom: 12px;
+}
+.mm-banner.error { border-color: var(--mm-danger); color: var(--mm-danger); background: color-mix(in srgb, var(--mm-danger) 8%, transparent); }
+.mm-banner.ok { border-color: var(--mm-primary); color: var(--mm-primary); background: color-mix(in srgb, var(--mm-primary) 8%, transparent); }
+
+.mm-tag {
+  display: inline-flex; align-items: center; gap: 4px; height: 18px; padding: 0 6px;
+  border-radius: 999px; font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em;
+  background: var(--mm-muted); color: var(--mm-muted-fg);
+}
+.mm-tag.broken { background: color-mix(in srgb, var(--mm-danger) 14%, transparent); color: var(--mm-danger); }
+.mm-tag.button { background: color-mix(in srgb, var(--mm-primary) 14%, transparent); color: var(--mm-primary); }
