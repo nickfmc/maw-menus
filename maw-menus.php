@@ -2,8 +2,12 @@
 namespace Grav\Plugin;
 
 use Composer\Autoload\ClassLoader;
+use Grav\Common\Cache;
 use Grav\Common\Plugin;
 use Grav\Plugin\MawMenus\Controllers\MenusController;
+use Grav\Plugin\MawMenus\MenuResolver;
+use Grav\Plugin\MawMenus\MenuStore;
+use Grav\Plugin\MawMenus\TwigFunctions;
 use RocketTheme\Toolbox\Event\Event;
 
 /**
@@ -22,7 +26,14 @@ use RocketTheme\Toolbox\Event\Event;
  */
 class MawMenusPlugin extends Plugin
 {
-    /** Container flag: tells maw-starter the Twig functions below are already registered. */
+    /**
+     * Container flag: tells a theme the Twig functions below are already registered, so it skips its own
+     * stubs (Twig throws on a duplicate function name).
+     *
+     * Spelled out rather than aliased to TwigFunctions::REGISTERED: Grav loads this file before
+     * autoload() has registered the PSR-4 loader for classes/, so a constant expression referencing a
+     * class in there is a fatal error on boot.
+     */
     public const REGISTERED = 'maw_menus';
 
     public function autoload(): ClassLoader
@@ -39,7 +50,45 @@ class MawMenusPlugin extends Plugin
         return [
             'onApiRegisterRoutes' => ['onApiRegisterRoutes', 0],
             'onApiSidebarItems'   => ['onApiSidebarItems', 0],
+            'onApiPageMoved'      => ['onApiPageMoved', 0],
+            // Ahead of a theme's own onTwigInitialized (priority 0), so it can see these are claimed and
+            // skip its no-op stubs. Twig throws on a duplicate function name.
+            'onTwigInitialized'   => ['onTwigInitialized', 10],
         ];
+    }
+
+    /**
+     * maw_menu(id, options) → render-ready nodes
+     * maw_menu_exists(id)   → whether that menu has been built
+     */
+    public function onTwigInitialized(): void
+    {
+        TwigFunctions::register($this->grav['twig']->twig, new MenuResolver($this->grav));
+        $this->grav[self::REGISTERED] = true;
+    }
+
+    /**
+     * A page was moved or renamed in the admin: follow it, so menu links don't quietly 404.
+     *
+     * Wrapped in try/catch because a failure here must never break the move itself — a stale menu link
+     * shows a broken badge in the admin, which is recoverable; a failed page move is not.
+     */
+    public function onApiPageMoved(Event $event): void
+    {
+        if (!$this->config->get('plugins.maw-menus.rewrite_routes', true)) {
+            return;
+        }
+        try {
+            $changed = (new MenuStore($this->grav))->rewriteRoute(
+                (string) $event['old_route'],
+                (string) $event['new_route']
+            );
+            if ($changed) {
+                Cache::clearCache('invalidate');
+            }
+        } catch (\Throwable $e) {
+            $this->grav['log']->warning('maw-menus: route rewrite failed: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -54,6 +103,12 @@ class MawMenusPlugin extends Plugin
 
         $routes->group('/maw-menus', function ($r) {
             $r->get('/menus', [MenusController::class, 'index']);
+            $r->post('/menus', [MenusController::class, 'create']);
+            $r->get('/menus/{id}', [MenusController::class, 'show']);
+            $r->patch('/menus/{id}', [MenusController::class, 'update']);
+            $r->delete('/menus/{id}', [MenusController::class, 'destroy']);
+            $r->post('/menus/{id}/seed', [MenusController::class, 'seed']);
+            $r->get('/pages', [MenusController::class, 'pages']);
         });
     }
 
