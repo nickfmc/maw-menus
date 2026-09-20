@@ -1,4 +1,5 @@
 enabled: true
+default_menu: header
 max_depth: 3
 external_new_tab: true
 rewrite_routes: true

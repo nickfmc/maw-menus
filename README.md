@@ -43,18 +43,60 @@ Add items from the panel on the left: **Pages** (searchable, including pages hid
 nav), **Link** for a custom URL or a grouping heading, or **Build** to seed the whole menu from the page
 tree the way the theme's automatic navigation would.
 
-## What a theme provides
+## Adding this to any theme
 
-The plugin supplies data; the theme supplies markup. It deliberately ships **no front-end templates**, so it
-can never win over a theme's or a site's own.
+The plugin stores and resolves menus; the theme decides the markup. Two Twig functions:
 
 | Function | Returns |
 |---|---|
-| `maw_menu_exists(id)` | whether a menu of that name exists |
+| `maw_menu_exists(id)` | whether that menu has been built |
 | `maw_menu(id, options = {})` | a list of render-ready nodes, `[]` when the menu is missing |
 
-`options`: `max_depth` (defaults to the menu's own), `include_broken` (the admin passes true),
-`current` (the page to compute active state against; defaults to the current one).
+**Leave the id out and you get the main menu** — the one set in *Plugins → MAW Menus → Main menu*. A
+theme therefore does not need to invent a naming convention, and a site can repoint its nav without
+touching templates.
+
+### The quick way
+
+Find the theme's navigation partial and replace the markup it generates:
+
+```twig
+{% if maw_menu_exists() %}
+    {% include 'maw-menus/menu.html.twig' with {class: 'nav-list', depth: 2} only %}
+{% else %}
+    ... the theme's existing navigation ...
+{% endif %}
+```
+
+That is the whole integration. Keeping the theme's own markup in the `{% else %}` means the site still
+works when no menu has been built yet, and if the plugin is ever removed.
+
+`maw-menus/menu.html.twig` takes `menu` (id; omitted means the main menu), `nodes` (pass nodes directly
+instead), `class`, `depth`, `aria`, and `icons` (off by default — the stored icon is a raw token like
+`fa-user`, and only the theme knows what icon set it loads).
+
+### The thorough way
+
+Write the markup yourself, so it matches the theme exactly:
+
+```twig
+{% macro items(nodes) %}
+  {% for n in nodes %}
+    <li class="{{ n.classes }}">
+      {% if n.kind == 'link' %}
+        <a href="{{ n.url|e }}"{% if n.active %} aria-current="page"{% endif %}
+           {%- if n.target %} target="{{ n.target|e }}"{% endif %}
+           {%- if n.rel %} rel="{{ n.rel|e }}"{% endif %}>{{ n.label }}</a>
+      {% else %}
+        <span>{{ n.label }}</span>
+      {% endif %}
+      {% if n.children %}<ul>{{ _self.items(n.children) }}</ul>{% endif %}
+    </li>
+  {% endfor %}
+{% endmacro %}
+
+<ul class="nav">{{ _self.items(maw_menu()) }}</ul>
+```
 
 Each node:
 
@@ -72,11 +114,19 @@ Each node:
 | `broken` | only with `include_broken`: the page is missing or unpublished |
 | `children` | nested nodes |
 
-Switching on `kind` is what keeps a future item type from breaking an older theme: an unknown type with a
+`options`: `max_depth` (defaults to the menu's own), `include_broken` (the admin passes true),
+`current` (the page to compute active state against; defaults to the current one).
+
+Switching on `kind` is what keeps a future item type from breaking a theme: an unknown type with a
 usable href arrives as a `link`, and without one as `text`.
 
-A theme should use `maw_menu_exists()` for the fallback decision rather than checking whether `maw_menu()`
-is empty — a menu that exists and is empty is a deliberate "show nothing".
+### Two details worth knowing
+
+**Use `maw_menu_exists()` for the fallback decision**, not `maw_menu()|length`. A menu that exists and
+is empty is a deliberate "show nothing"; a menu that does not exist yet means "fall back".
+
+**Style flags become classes**, so the theme decides what they look like. An item flagged as a button
+gets `menu-item--button`; style `.nav .menu-item--button > a` however the theme likes.
 
 ## Storage
 

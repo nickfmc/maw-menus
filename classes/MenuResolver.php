@@ -48,14 +48,31 @@ class MenuResolver
      * Deliberately distinct from "has items": a theme falls back to its own navigation when no menu has
      * been built, but must render nothing when an editor has built one and emptied it on purpose.
      */
-    public function exists(string $id): bool
+    public function exists(string $id = ''): bool
     {
-        return $this->store->exists($id);
+        return $this->store->exists($this->id($id));
+    }
+
+    /**
+     * An empty id means "the main menu", which is a plugin setting rather than a theme one — a theme
+     * that has no opinion about names still gets whichever menu the site considers its primary nav.
+     */
+    public function id(string $id = ''): string
+    {
+        $id = trim($id);
+
+        return $id !== '' ? $id : (string) $this->grav['config']->get('plugins.maw-menus.default_menu', 'header');
+    }
+
+    public function defaultId(): string
+    {
+        return $this->id('');
     }
 
     /** @return array{id: string, title: string, items: list<array>}|null */
-    public function resolve(string $id, array $options = []): ?array
+    public function resolve(string $id = '', array $options = []): ?array
     {
+        $id = $this->id($id);
         $current = $options['current'] ?? ($this->grav['page'] ?? null);
         // route() is null on the CLI and during early boot, so never hand it straight to a string parameter.
         $currentRoute = $this->normalizeRoute($current instanceof PageInterface ? (string) $current->route() : '');
@@ -89,7 +106,7 @@ class MenuResolver
     }
 
     /** Convenience for Twig: just the nodes, [] when the menu is missing. */
-    public function nodes(string $id, array $options = []): array
+    public function nodes(string $id = '', array $options = []): array
     {
         return $this->resolve($id, $options)['items'] ?? [];
     }

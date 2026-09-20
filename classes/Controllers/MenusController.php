@@ -69,7 +69,14 @@ class MenusController extends AbstractApiController
     {
         $this->requireMenus($request, self::READ);
 
-        return ApiResponse::create($this->store()->all());
+        // Flag the main menu so the admin can show which one a theme gets by default.
+        $default = (new MenuResolver($this->grav))->defaultId();
+        $menus = array_map(
+            static fn (array $menu) => $menu + ['is_default' => $menu['id'] === $default],
+            $this->store()->all()
+        );
+
+        return ApiResponse::create($menus);
     }
 
     /** GET /maw-menus/menus/{id}?resolve=1 */

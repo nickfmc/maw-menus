@@ -370,6 +370,31 @@ test('max_depth drops deeper levels rather than flattening them', function () us
     eq('C', $three[0]['children'][0]['children'][0]['label']);
 });
 
+test('an empty id means the main menu, which is a plugin setting', function () use ($grav) {
+    $s = store($grav, tmpdir());
+    $s->create('Primary', [['type' => 'url', 'url' => '/x', 'label' => 'X']], 'nick', 'primary');
+    $r = new MenuResolver($grav, $s);
+
+    $original = $grav['config']->get('plugins.maw-menus.default_menu');
+    $grav['config']->set('plugins.maw-menus.default_menu', 'primary');
+    try {
+        eq('primary', $r->defaultId());
+        eq('primary', $r->id(''), 'no name asked for => the main menu');
+        eq('other', $r->id('other'), 'an explicit name is never overridden');
+
+        MenuResolver::flushCache();
+        ok($r->exists(''), 'a theme can ask for the main menu without knowing its name');
+        MenuResolver::flushCache();
+        eq('X', $r->nodes('')[0]['label']);
+
+        MenuResolver::flushCache();
+        ok(!$r->exists('nope'));
+    } finally {
+        $grav['config']->set('plugins.maw-menus.default_menu', $original);
+        MenuResolver::flushCache();
+    }
+});
+
 test('exists distinguishes a missing menu from an empty one', function () use ($grav) {
     $s = store($grav, tmpdir());
     $r = new MenuResolver($grav, $s);

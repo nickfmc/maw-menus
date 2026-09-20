@@ -51,6 +51,7 @@ class MawMenusPlugin extends Plugin
             'onApiRegisterRoutes' => ['onApiRegisterRoutes', 0],
             'onApiSidebarItems'   => ['onApiSidebarItems', 0],
             'onApiPageMoved'      => ['onApiPageMoved', 0],
+            'onTwigTemplatePaths' => ['onTwigTemplatePaths', 0],
             // Ahead of a theme's own onTwigInitialized (priority 0), so it can see these are claimed and
             // skip its no-op stubs. Twig throws on a duplicate function name.
             'onTwigInitialized'   => ['onTwigInitialized', 10],
@@ -58,8 +59,23 @@ class MawMenusPlugin extends Plugin
     }
 
     /**
+     * The optional generic renderer at `maw-menus/menu.html.twig`, for themes with no menu markup of
+     * their own.
+     *
+     * Appended, never unshifted. maw-starter prepends the per-site template layer at priority 100, and
+     * a plugin that unshifted here would land in front of it and steal every site override. The
+     * maw-menus/ namespace keeps it from colliding with a theme partial either way.
+     */
+    public function onTwigTemplatePaths(): void
+    {
+        $this->grav['twig']->twig_paths[] = __DIR__ . '/templates';
+    }
+
+    /**
      * maw_menu(id, options) → render-ready nodes
      * maw_menu_exists(id)   → whether that menu has been built
+     *
+     * Both take an empty id to mean the plugin's "Main menu" setting.
      */
     public function onTwigInitialized(): void
     {

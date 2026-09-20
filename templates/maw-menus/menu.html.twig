@@ -1,0 +1,57 @@
+{#
+  A generic menu renderer, for themes that do not ship their own.
+
+  Usage in any theme — the main menu, then a named one:
+      {% include 'maw-menus/menu.html.twig' %}
+      {% include 'maw-menus/menu.html.twig' with {menu: 'footer'} %}
+
+  (Careful editing this header: Twig comments do not nest, so a nested comment marker here would end
+  the block early and turn the lines above into a template that includes itself.)
+
+  Params (all optional):
+      menu     menu id; omitted means the plugin's "Main menu" setting
+      nodes    pass nodes directly instead of a menu id
+      class    class for the outer <ul>            (default 'menu')
+      depth    levels to render                    (default 2)
+      aria     aria-label for the <ul>
+      icons    render item icons as <i class="...">  (default false — see below)
+      fallback render nothing when the menu does not exist (default true)
+
+  Icons are off by default because the stored value is a raw token such as `fa-user`, and only the
+  theme knows what icon set it loads. Turn them on and the token is emitted verbatim as a class.
+
+  This file lives under a maw-menus/ namespace and is appended to the Twig path, never prepended, so a
+  theme or a site layer can always shadow anything without fighting the plugin.
+#}
+{% set _nodes = nodes is defined ? nodes : maw_menu(menu|default(''), {max_depth: depth|default(2)}) %}
+
+{% macro items(nodes, depth, level, icons) %}
+    {% for n in nodes %}
+        <li class="{{ n.classes }}">
+            {% if n.kind == 'link' %}
+                <a href="{{ n.url|e }}"
+                   {%- if n.active %} aria-current="page"{% endif %}
+                   {%- if n.target %} target="{{ n.target|e }}"{% endif %}
+                   {%- if n.rel %} rel="{{ n.rel|e }}"{% endif %}>
+                    {%- if icons and n.icon %}<i class="{{ n.icon|e }}" aria-hidden="true"></i> {% endif -%}
+                    {{ n.label }}
+                    {%- if n.description %}<span class="menu-item__desc">{{ n.description }}</span>{% endif -%}
+                </a>
+            {% else %}
+                <span class="menu-item__text">
+                    {%- if icons and n.icon %}<i class="{{ n.icon|e }}" aria-hidden="true"></i> {% endif -%}
+                    {{ n.label }}
+                </span>
+            {% endif %}
+            {% if n.children and level < depth %}
+                <ul>{{ _self.items(n.children, depth, level + 1, icons) }}</ul>
+            {% endif %}
+        </li>
+    {% endfor %}
+{% endmacro %}
+
+{% if _nodes|length %}
+<ul class="{{ class|default('menu') }}"{% if aria is defined and aria %} aria-label="{{ aria|e }}"{% endif %}>
+    {{- _self.items(_nodes, depth|default(2), 1, icons|default(false)) -}}
+</ul>
+{% endif %}

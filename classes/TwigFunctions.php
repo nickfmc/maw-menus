@@ -21,13 +21,15 @@ final class TwigFunctions
 
     public static function register(Environment $env, MenuResolver $resolver): void
     {
+        // The id is optional: with none, both fall back to the plugin's "main menu" setting, so a theme
+        // can support menus without inventing a naming convention of its own.
         $env->addFunction(new TwigFunction(
             'maw_menu',
-            static fn (string $id, array $options = []): array => $resolver->nodes($id, $options)
+            static fn (string $id = '', array $options = []): array => $resolver->nodes($id, $options)
         ));
         $env->addFunction(new TwigFunction(
             'maw_menu_exists',
-            static fn (string $id): bool => $resolver->exists($id)
+            static fn (string $id = ''): bool => $resolver->exists($id)
         ));
     }
 }

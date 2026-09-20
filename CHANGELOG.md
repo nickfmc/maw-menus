@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.4.0 (2026-09-20)
+Support for themes other than maw-starter.
+
+- **A "Main menu" setting.** `maw_menu()` and `maw_menu_exists()` now take no id at all, and resolve to whichever menu the plugin is set to treat as the main one. A theme no longer has to invent a naming convention, and a site can repoint its navigation without editing a template. The admin marks that menu "main" in the picker.
+- **A ready-made renderer**, `maw-menus/menu.html.twig`, so adding menus to a theme is one include rather than writing markup. It takes `menu`, `nodes`, `class`, `depth`, `aria` and `icons`. Icons are off by default: the stored value is a raw token and only the theme knows its icon set.
+- The plugin's template path is **appended**, never prepended, so a theme or a per-site layer always wins.
+- README now documents both integration routes and the full node shape.
+- Fix: the renderer's own doc comment nested a Twig comment inside another. Comments do not nest, so the block ended early and the usage example became live code — a template that included itself.
+
 ## v0.3.0 (2026-09-20)
 The menu builder itself: a drag-and-drop nesting tree on the Admin2 **Menus** screen.
 

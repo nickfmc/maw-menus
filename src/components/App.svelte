@@ -62,7 +62,7 @@
       disabled={!store.menus.length}
     >
       {#each store.menus as menu (menu.id)}
-        <option value={menu.id}>{menu.title} ({menu.id})</option>
+        <option value={menu.id}>{menu.title} ({menu.id}){menu.is_default ? ' — main' : ''}</option>
       {/each}
       {#if !store.menus.length}<option value="">No menus yet</option>{/if}
     </select>
@@ -81,6 +81,11 @@
         </select>
       </label>
       <span class="count">{store.count} item{store.count === 1 ? '' : 's'}</span>
+      {#if store.current && !store.menus.find((m) => m.id === store.current.id)?.is_default}
+        <span class="count" title="A theme that doesn't name a menu gets the main one. Change which that is in Plugins → MAW Menus.">
+          Not the main menu
+        </span>
+      {/if}
     {/if}
 
     <span class="spacer"></span>
