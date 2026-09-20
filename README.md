@@ -29,7 +29,7 @@ hidden page can never appear in the nav. This plugin adds menus as data, without
 ## Install
 
 ```bash
-git submodule add https://github.com/nickfmc/grav-plugin-maw-menus.git user/plugins/maw-menus
+git submodule add https://github.com/nickfmc/maw-menus.git user/plugins/maw-menus
 php bin/grav clearcache
 ```
 

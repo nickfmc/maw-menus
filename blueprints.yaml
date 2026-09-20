@@ -4,8 +4,8 @@ type: plugin
 # Bump this on every release that changes API routes: the API plugin caches its route table and only
 # rebuilds it when a plugin's blueprints.yaml changes. Without a bump, a new endpoint returns 404.
 version: 0.4.0
-homepage: https://github.com/nickfmc/grav-plugin-maw-menus
-bugs: https://github.com/nickfmc/grav-plugin-maw-menus/issues
+homepage: https://github.com/nickfmc/maw-menus
+bugs: https://github.com/nickfmc/maw-menus/issues
 description: Drag-and-drop menu builder for Admin2. Build named menus from pages and custom links, with nesting, icons and style flags. Saves plain YAML.
 icon: bars
 author:
